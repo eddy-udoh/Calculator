@@ -22,7 +22,8 @@
                 </div>
                 <div>
                     <input type="button" value="AC" onclick="display.value = '' " class="operator">
-                    <input type="button" value="DEL" onclick="display.value = display.value.toString().slice(0, -1) " class="operator">
+                    <input type="button" value="DEL" onclick="display.value = display.value.toString().slice(0, -1) "
+                        class="operator">
                     <input type="button" value="." onclick="display.value += '.' " class="operator">
                     <input type="button" value="/" onclick="display.value += '/' " class="operator">
                 </div>
@@ -47,12 +48,129 @@
                 <div>
                     <input type="button" value="00" onclick="display.value += '00' ">
                     <input type="button" value="0" onclick="display.value += '0' ">
-                    <input type="button" value="=" onclick="display.value = eval(display.value)" class="equal" class="operator">
+                    <input type="button" value="=" onclick="display.value = eval(display.value)" class="equal"
+                        class="operator">
                 </div>
             </form>
         </div>
     </div>
+    <script>
+        function addNumber(num) {
+            const display = document.querySelector('input[name="display"]');
 
+
+            if (display.value === '0' && num !== '00') {
+                display.value = num;
+            } else if (display.value === '0' && num === '00') {
+                return;
+            } else {
+                display.value += num;
+            }
+        }
+
+        function addOperator(operator) {
+            const display = document.querySelector('input[name="display"]');
+            const lastChar = display.value.slice(-1);
+
+
+            if (display.value === '') {
+                if (operator === '-') {
+                    display.value = '-';
+                }
+                return;
+            }
+
+            if (['+', '-', '*', '/'].includes(lastChar)) {
+                display.value = display.value.slice(0, -1) + operator;
+            } else {
+                display.value += operator;
+            }
+        }
+
+        function addDecimal() {
+            const display = document.querySelector('input[name="display"]');
+            const currentValue = display.value;
+
+
+            if (currentValue === '') {
+                display.value = '0.';
+                return;
+            }
+
+
+            const parts = currentValue.split(/[+\-*/]/);
+            const lastNumber = parts[parts.length - 1];
+
+            if (!lastNumber.includes('.')) {
+                display.value += '.';
+            }
+        }
+
+        function deleteLast() {
+            const display = document.querySelector('input[name="display"]');
+            display.value = display.value.toString().slice(0, -1);
+        }
+
+        function clearDisplay() {
+            const display = document.querySelector('input[name="display"]');
+            display.value = '';
+        }
+
+        function calculateResult() {
+            const display = document.querySelector('input[name="display"]');
+            let expression = display.value;
+
+
+            if (expression === '') return;
+
+
+            const lastChar = expression.slice(-1);
+            if (['+', '-', '*', '/'].includes(lastChar)) {
+                return;
+            }
+
+            try {
+
+                if (expression.includes('/0') && !expression.includes('/0.')) {
+                    display.value = 'Erro';
+                    setTimeout(() => {
+                        display.value = '';
+                    }, 2000);
+                    return;
+                }
+
+
+                const result = Function('"use strict"; return (' + expression + ')')();
+
+
+                if (isNaN(result) || !isFinite(result)) {
+                    display.value = 'Error';
+                    setTimeout(() => {
+                        display.value = '';
+                    }, 2000);
+                    return;
+                }
+
+
+                display.value = parseFloat(result.toFixed(10)).toString();
+
+            } catch (error) {
+                display.value = 'Error';
+                setTimeout(() => {
+                    display.value = '';
+                }, 2000);
+            }
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const display = document.querySelector('input[name="display"]');
+            display.addEventListener('input', function (e) {
+                this.value = this.value.replace(/[^0-9+\-*/.]/g, '');
+            });
+        });
+    </script>
 </body>
 
 </html>
